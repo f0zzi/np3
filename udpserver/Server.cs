@@ -46,25 +46,31 @@ namespace udpserver
 
         static void SendImg()
         {
-            //if (RemoteIpEndPoint != null)
+            try
             {
-                byte[] data = (byte[])imageConverter.ConvertTo(TakeScreenshot(), typeof(byte[]));
-                byte[] image_size = BitConverter.GetBytes(data.Length);
-                server.Send(image_size, image_size.Length, RemoteIpEndPoint);
-                //Thread.Sleep(200);
-                byte[] buff = new byte[SIZE];
-                int len = 0;
-                using (MemoryStream ms = new MemoryStream(data))
+                if (RemoteIpEndPoint != null)
                 {
-                    ms.Position = 0;
-                    while (true)
+                    byte[] data = (byte[])imageConverter.ConvertTo(TakeScreenshot(), typeof(byte[]));
+                    byte[] image_size = BitConverter.GetBytes(data.Length);
+                    server.Send(image_size, image_size.Length, RemoteIpEndPoint);
+                    byte[] buff = new byte[SIZE];
+                    int len = 0;
+                    using (MemoryStream ms = new MemoryStream(data))
                     {
-                        len = ms.Read(buff, 0, SIZE);
-                        if (len == 0)
-                            break;
-                        server.Send(buff, len, RemoteIpEndPoint);
+                        ms.Position = 0;
+                        while (true)
+                        {
+                            len = ms.Read(buff, 0, SIZE);
+                            if (len == 0)
+                                break;
+                            server.Send(buff, len, RemoteIpEndPoint);
+                        }
                     }
                 }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message);
             }
         }
 

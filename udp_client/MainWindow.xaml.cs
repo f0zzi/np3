@@ -17,6 +17,7 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.Drawing;
 using System.IO;
+using System.Threading;
 
 namespace udp_client
 {
@@ -38,25 +39,36 @@ namespace udp_client
             lbScreenshots.ItemsSource = screenshots;
         }
 
-        private void Start_click(object sender, RoutedEventArgs e)
+        private async void Start_click(object sender, RoutedEventArgs e)
         {
-            if (Convert.ToInt32(tbFrequency.Text) > 0)
+            if (!String.IsNullOrWhiteSpace(tbFrequency.Text) && Convert.ToInt32(tbFrequency.Text) > 0)
             {
                 (sender as Button).IsEnabled = false;
+                is_take_shot = true;
                 btTakeShot.IsEnabled = false;
+                btStop.IsEnabled = true;
+                int delay = Convert.ToInt32(tbFrequency.Text);
+                await Task.Run(() =>
+                {
+                    while (is_take_shot)
+                    {
+                        TakeShot();
+                        Thread.Sleep(delay * 1000);
+                    }
+                });
             }
-
         }
-
         private void Stop_click(object sender, RoutedEventArgs e)
         {
+            is_take_shot = false;
             (sender as Button).IsEnabled = false;
             btTakeShot.IsEnabled = true;
+            btStart.IsEnabled = true;
         }
 
-        private void Take_screen_click(object sender, RoutedEventArgs e)
+        private async void Take_screen_click(object sender, RoutedEventArgs e)
         {
-            TakeShot();
+            await Task.Run(() => TakeShot());
         }
         public static void TakeShot()
         {
@@ -76,12 +88,15 @@ namespace udp_client
                     byte[] tmp = new byte[ms.Length];
                     ms.Position = 0;
                     ms.Read(tmp, 0, tmp.Length);
-                    screenshots.Add(BitmapToImageSource((Bitmap)imageConverter.ConvertFrom(tmp)));
+                    Application.Current.Dispatcher.Invoke(() =>
+                    {
+                        screenshots.Add(BitmapToImageSource((Bitmap)imageConverter.ConvertFrom(tmp)));
+                    });
                 }
             }
             catch (Exception e)
             {
-                Console.WriteLine(e.Message);
+                MessageBox.Show(e.Message);
             }
         }
         private static BitmapImage BitmapToImageSource(Bitmap bitmap)

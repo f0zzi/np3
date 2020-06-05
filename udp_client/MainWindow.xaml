@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:udp_client"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
+        Title="MainWindow" Height="459.806" Width="800">
     <DockPanel>
         <StackPanel Width="200" DockPanel.Dock="Left" Margin="5">
             <ListBox Height="234" Name="lbScreenshots" ItemsSource="{Binding}">
@@ -15,7 +15,7 @@
                 Get screenshot
             </Button>
             <Label>
-                Auto screenshot frequency:
+                Autoscreenshot frequency(seconds):
             </Label>
             <TextBox Name="tbFrequency"></TextBox>
             <Button Name="btStart" Width="100" Height="30" Margin="10" Click="Start_click">
